@@ -6,14 +6,10 @@ public class Semaphore{
     public Semaphore(int initial){
         value = initial;
     }
-    public synchronized void acquire(){
-        while(value == 0){
-            try{
-                wait();
-            }
-            catch(InterruptedException e){
-                System.out.println("Exception Error: " + e);
-            }
+    public synchronized void acquire() throws InterruptedException{
+        while(value == 0){        
+            wait();
+
         }
         value--;
     } 
@@ -22,19 +18,16 @@ public class Semaphore{
         notifyAll();
     }
 
-    public synchronized boolean acq_timeout(long timeout) {
+    public synchronized boolean acq_timeout(long timeout)  throws InterruptedException{
         
         long old_time = System.currentTimeMillis();
 
         while(value == 0){
-            try{
-                long cur_time = System.currentTimeMillis();
-                long time = old_time + timeout - cur_time;
-                if(time <= 0) return false;
-                wait(time);
-            }catch(InterruptedException e){
-                
-            }
+            long cur_time = System.currentTimeMillis();
+            long time = old_time + timeout - cur_time;
+            if(time <= 0) return false;
+            wait(time);
+
         }
         value--;
         return true;
