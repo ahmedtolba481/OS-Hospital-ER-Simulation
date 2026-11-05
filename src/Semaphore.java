@@ -4,6 +4,12 @@ public class Semaphore{
         value = 0;
     }
     public Semaphore(int initial){
+        if (initial < 0) {
+            throw new IllegalArgumentException(
+                    "Semaphore permits cannot be negative"
+            );
+        }
+
         value = initial;
     }
     public synchronized void acquire() throws InterruptedException{

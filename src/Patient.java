@@ -1,4 +1,5 @@
 public class Patient implements Runnable {
+
     private final int patientId;
     private final WaitingRoom waitingRoom;
     private boolean treated;
@@ -12,8 +13,9 @@ public class Patient implements Runnable {
     @Override
     public void run() {
         try {
-            SimulationLogger.log("Patient " + patientId + " arrived at the hospital.");
-            
+            Output.log("Patient " + patientId
+                    + " arrived at the hospital.");
+
             waitingRoom.enter(this);
 
             synchronized (this) {
@@ -22,10 +24,14 @@ public class Patient implements Runnable {
                 }
             }
 
-            SimulationLogger.log("Patient " + patientId + " left the hospital after treatment.");
+            Output.log("Patient " + patientId
+                    + " left the hospital after treatment.");
+
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            SimulationLogger.log("Patient " + patientId + " was interrupted.");
+
+            Output.log("Patient " + patientId
+                    + " was interrupted.");
         }
     }
 

@@ -12,6 +12,9 @@ public class WaitingRoom {
     private boolean closed;
 
     public WaitingRoom(int capacity) {
+        if (capacity <= 0) {
+            throw new IllegalArgumentException("Capacity must be positive");
+        }
         this.capacity = capacity;
         this.patients = new LinkedList<>();
         this.emptySlots = new Semaphore(capacity);
@@ -22,53 +25,73 @@ public class WaitingRoom {
 
     public void enter(Patient patient) throws InterruptedException {
         emptySlots.acquire();
-
         mutex.acquire();
         try {
             patients.add(patient);
-            SimulationLogger.log("Patient " + patient.getPatientId() + " entered the waiting room.");
+            Output.log("Patient " + patient.getPatientId()
+                    + " entered the waiting room.");
         } finally {
             mutex.release();
         }
 
         availablePatients.release();
     }
-
     public Patient takePatient() throws InterruptedException {
         availablePatients.acquire();
 
         mutex.acquire();
+
+        Patient patient = null;
+
         try {
             if (closed && patients.isEmpty()) {
                 return null;
             }
 
-            Patient patient = patients.poll();
-            SimulationLogger.log("Doctor took Patient " + (patient != null ? patient.getPatientId() : "null") + " from waiting room.");
-            return patient;
+            patient = patients.poll();
+
+            Output.log("A Doctor took Patient "
+                    + (patient != null ? patient.getPatientId() : "null")
+                    + " from waiting room.");
+
         } finally {
             mutex.release();
         }
-    }
 
-    public void returnPatient(Patient patient) throws InterruptedException {
+        if (patient != null) {
+            emptySlots.release();
+        }
+
+        return patient;
+    }
+    public void returnPatient(Patient patient, int doctorId) throws InterruptedException {
+        Output.log("Doctor " + doctorId + " is sending P"
+                + patient.getPatientId() + " back to the waiting room.");
+
+        if (emptySlots.get_value() == 0) {
+            Output.log("The waiting room is full.");
+            Output.log("P" + patient.getPatientId()
+                    + " is waiting outside for an available seat.");
+        }
+        emptySlots.acquire();
         mutex.acquire();
         try {
             ((LinkedList<Patient>) patients).addFirst(patient);
-            SimulationLogger.log("Doctor returned Patient " + patient.getPatientId() + " back to the waiting room due to timeout.");
+
+            Output.log("Doctor " + doctorId + " returned Patient "
+                    + patient.getPatientId()
+                    + " back to the waiting room due to timeout.");
         } finally {
             mutex.release();
         }
-
         availablePatients.release();
     }
 
-    public void close(int numberOfDoctors) {
+    public void close(int numberOfDoctors) throws InterruptedException {
+        mutex.acquire();
+
         try {
-            mutex.acquire();
             this.closed = true;
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
         } finally {
             mutex.release();
         }
