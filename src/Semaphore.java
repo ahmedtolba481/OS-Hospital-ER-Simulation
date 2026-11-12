@@ -9,13 +9,11 @@ public class Semaphore{
                     "Semaphore permits cannot be negative"
             );
         }
-
         value = initial;
     }
     public synchronized void acquire() throws InterruptedException{
         while(value == 0){        
             wait();
-
         }
         value--;
     } 
@@ -23,26 +21,18 @@ public class Semaphore{
         value++;
         notifyAll();
     }
-
     public synchronized boolean acq_timeout(long timeout)  throws InterruptedException{
-        
         long old_time = System.currentTimeMillis();
-
         while(value == 0){
             long cur_time = System.currentTimeMillis();
             long time = old_time + timeout - cur_time;
             if(time <= 0) return false;
             wait(time);
-
         }
         value--;
         return true;
-
-        
     }
-
     public synchronized int get_value(){
         return value;
     }
-    
 }
