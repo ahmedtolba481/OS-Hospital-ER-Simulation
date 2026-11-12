@@ -1,5 +1,5 @@
 import java.util.Scanner;
-import java.util.concurrent.CountDownLatch;
+
 
 public class Hospital {
 
@@ -26,17 +26,13 @@ public class Hospital {
         TreatmentRoomManager treatmentRoomManager =
                 new TreatmentRoomManager(2);
 
-        CountDownLatch completionLatch =
-                new CountDownLatch(numberOfPatients);
-
         Doctor[] doctors = new Doctor[numberOfDoctors];
 
         for (int i = 0; i < numberOfDoctors; i++) {
             doctors[i] = new Doctor(
                     i + 1,
                     waitingRoom,
-                    treatmentRoomManager,
-                    completionLatch
+                    treatmentRoomManager
             );
         }
 
@@ -55,7 +51,6 @@ public class Hospital {
         }
 
         try {
-            completionLatch.await();
 
             for (Thread patient : patients) {
                 patient.join();

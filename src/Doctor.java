@@ -1,22 +1,20 @@
 import java.util.Random;
-import java.util.concurrent.CountDownLatch;
+
 
 public class Doctor extends Thread {
 
     private final int doctorId;
     private final WaitingRoom waitingRoom;
     private final TreatmentRoomManager treatmentRoomManager;
-    private final CountDownLatch completionLatch;
     private final Random random;
 
     public Doctor(int doctorId, WaitingRoom waitingRoom,
-                  TreatmentRoomManager treatmentRoomManager,
-                  CountDownLatch completionLatch) {
+                  TreatmentRoomManager treatmentRoomManager
+                  ) {
 
         this.doctorId = doctorId;
         this.waitingRoom = waitingRoom;
         this.treatmentRoomManager = treatmentRoomManager;
-        this.completionLatch = completionLatch;
         this.random = new Random();
     }
 
@@ -81,7 +79,5 @@ public class Doctor extends Thread {
         patient.markAsTreated();
 
         Output.log("Doctor " + doctorId + " is now available.");
-
-        completionLatch.countDown();
     }
 }
