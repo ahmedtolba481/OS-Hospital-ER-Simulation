@@ -16,15 +16,10 @@ public class Hospital {
         }
         Output.printHeader(capacity, numberOfDoctors, numberOfPatients);
         WaitingRoom waitingRoom = new WaitingRoom(capacity);
-        TreatmentRoomManager treatmentRoomManager =
-                new TreatmentRoomManager(2);
+        TreatmentRoomManager treatmentRoomManager = new TreatmentRoomManager(2);
         Doctor[] doctors = new Doctor[numberOfDoctors];
         for (int i = 0; i < numberOfDoctors; i++) {
-            doctors[i] = new Doctor(
-                    i + 1,
-                    waitingRoom,
-                    treatmentRoomManager
-            );
+            doctors[i] = new Doctor(i + 1, waitingRoom, treatmentRoomManager);
         }
         Thread[] patients = new Thread[numberOfPatients];
         for (int i = 0; i < numberOfPatients; i++) {
