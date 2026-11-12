@@ -35,7 +35,7 @@ public class Doctor extends Thread {
                 Output.log("Doctor " + doctorId
                         + " is trying to acquire a treatment room.");
 
-                boolean acquired = treatmentRoomManager.acquireRoom(3000);
+                boolean acquired = treatmentRoomManager.acquireRoom(300);
 
                 if (!acquired) {
 

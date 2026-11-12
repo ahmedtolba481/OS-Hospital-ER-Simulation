@@ -21,6 +21,8 @@ public class WaitingRoom {
     }
 
     public void enter(Patient patient) throws InterruptedException {
+        Output.log("Patient " + patient.getPatientId()
+                + " is waiting for an available seat.");
         emptySlots.acquire();
         mutex.acquire();
         try {
