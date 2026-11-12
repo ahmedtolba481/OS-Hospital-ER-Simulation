@@ -12,9 +12,6 @@ public class WaitingRoom {
     private boolean closed;
 
     public WaitingRoom(int capacity) {
-        if (capacity <= 0) {
-            throw new IllegalArgumentException("Capacity must be positive");
-        }
         this.capacity = capacity;
         this.patients = new LinkedList<>();
         this.emptySlots = new Semaphore(capacity);
@@ -101,7 +98,4 @@ public class WaitingRoom {
         }
     }
 
-    public void releaseSeat() {
-        emptySlots.release();
-    }
 }
