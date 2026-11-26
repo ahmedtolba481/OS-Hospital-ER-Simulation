@@ -19,7 +19,6 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -42,8 +41,9 @@ public class FloorPane extends StackPane {
     private final Map<Integer, Boolean> animating = new HashMap<>();
     private final Map<Integer, StackPane> doctorCards = new HashMap<>();
     private final Map<Integer, Label> doctorStatus = new HashMap<>();
-    private final Map<Integer, Circle> doctorDots = new HashMap<>();
+    private final Map<Integer, Figures.Doctor> doctorDots = new HashMap<>();
     private final Map<Integer, Integer> doctorRoom = new HashMap<>();
+    private final Figures.Doctor[] roomDoctors = new Figures.Doctor[2];
     private final StackPane[] roomPods = new StackPane[2];
     private final Label[] roomLabels = new Label[2];
     private final ScaleTransition[] roomPulse = new ScaleTransition[2];
@@ -129,15 +129,16 @@ public class FloorPane extends StackPane {
             card.setLayoutX(498); card.setLayoutY(y);
             card.setPrefSize(156, cardH());
             card.getStyleClass().add("doctor-card");
-            Circle dot = new Circle(5, Color.web(Theme.GREEN));
+            double fs = Math.min(1.0, (cardH() - 14) / Figures.H);
+            Figures.Doctor dot = new Figures.Doctor(fs);
             Label name = new Label("DR " + i);
             name.setFont(Font.font("Segoe UI", FontWeight.BOLD, 13));
             name.setStyle("-fx-text-fill: " + Theme.TEXT + ";");
             Label status = new Label("Available");
             status.getStyleClass().add("doctor-status");
-            javafx.scene.layout.HBox row = new javafx.scene.layout.HBox(8, dot, name);
-            row.setAlignment(Pos.CENTER_LEFT);
-            VBox box = new VBox(4, row, status);
+            VBox texts = new VBox(3, name, status);
+            texts.setAlignment(Pos.CENTER_LEFT);
+            javafx.scene.layout.HBox box = new javafx.scene.layout.HBox(10, dot, texts);
             box.setAlignment(Pos.CENTER_LEFT);
             box.setPadding(new javafx.geometry.Insets(0, 0, 0, 12));
             card.getChildren().add(box);
@@ -161,6 +162,11 @@ public class FloorPane extends StackPane {
             roomPods[i] = pod;
             roomLabels[i] = l;
             floor.getChildren().add(pod);
+            Figures.Doctor rd = new Figures.Doctor(1.0);
+            rd.setLayoutX(694 + 14); rd.setLayoutY(y + 60);
+            rd.setVisible(false);
+            roomDoctors[i] = rd;
+            floor.getChildren().add(rd);
         }
     }
 
@@ -234,6 +240,8 @@ public class FloorPane extends StackPane {
                     doctorRoom.put(e.doctorId, room);
                     roomLabels[room].setText("ROOM " + (room + 1) + "\nReserved - Dr " + e.doctorId);
                     roomPods[room].getStyleClass().add("room-busy");
+                    roomDoctors[room].setStatusColor(Theme.AMBER);
+                    roomDoctors[room].setVisible(true);
                 }
                 break;
             }
@@ -242,6 +250,7 @@ public class FloorPane extends StackPane {
                 if (room != null) {
                     roomLabels[room].setText("ROOM " + (room + 1) + "\nDr " + e.doctorId + " treating P" + e.patientId);
                     startPulse(room);
+                    roomDoctors[room].setStatusColor(Theme.CYAN);
                     moveToken(e.patientId, roomPos(room), false);
                 }
                 setDoctor(e.doctorId, "Treating P" + e.patientId, Theme.CYAN);
@@ -254,6 +263,7 @@ public class FloorPane extends StackPane {
                     stopPulse(room);
                     roomLabels[room].setText("ROOM " + (room + 1) + "\nFree");
                     roomPods[room].getStyleClass().remove("room-busy");
+                    roomDoctors[room].setVisible(false);
                 }
                 break;
             }
@@ -280,20 +290,21 @@ public class FloorPane extends StackPane {
 
     private void setDoctor(int d, String status, String color) {
         Label s = doctorStatus.get(d);
-        Circle dot = doctorDots.get(d);
+        Figures.Doctor dot = doctorDots.get(d);
         if (s != null) s.setText(status);
-        if (dot != null) dot.setFill(Color.web(color));
+        if (dot != null) dot.setStatusColor(color);
     }
 
     private StackPane makeToken(int patientId) {
-        Circle c = new Circle(TOKEN / 2 - 2, Color.web(Theme.patientColor(patientId)));
-        c.setStroke(Color.web("#0B1220"));
-        c.setStrokeWidth(2);
-        c.setEffect(new DropShadow(8, Color.web(Theme.patientColor(patientId))));
+        String col = Theme.patientColor(patientId);
+        javafx.scene.Group fig = Figures.patient(col);
+        fig.setEffect(new DropShadow(8, Color.web(col)));
         Label l = new Label("P" + patientId);
-        l.setFont(Font.font("Segoe UI", FontWeight.BOLD, 11));
+        l.setFont(Font.font("Segoe UI", FontWeight.BOLD, 10));
         l.setStyle("-fx-text-fill: #0B1220;");
-        StackPane t = new StackPane(c, l);
+        StackPane.setAlignment(l, Pos.BOTTOM_CENTER);
+        l.setTranslateY(-3);
+        StackPane t = new StackPane(fig, l);
         t.setPrefSize(TOKEN, TOKEN);
         t.setMaxSize(TOKEN, TOKEN);
         return t;
