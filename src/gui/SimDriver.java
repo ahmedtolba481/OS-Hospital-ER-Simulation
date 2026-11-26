@@ -29,10 +29,14 @@ public class SimDriver {
 
     public void start() {
         running = true;
+        PaceGate.setPaused(false);
         originalOut = System.out;
         System.setOut(new PrintStream(originalOut) {
             @Override
             public void println(String s) {
+                // Pause gate: while paused, the calling simulation thread
+                // parks here, so the whole run freezes at the log lines.
+                PaceGate.awaitIfPaused();
                 super.println(s);
                 if (!running) return;
                 SimEvent e = SimEvent.parse(s);
@@ -74,6 +78,7 @@ public class SimDriver {
 
     public void stop() {
         running = false;
+        PaceGate.setPaused(false);
         for (Thread t : threads) t.interrupt();
         if (originalOut != null) System.setOut(originalOut);
     }
