@@ -11,6 +11,8 @@ public class StatsBar extends HBox {
     private final int capacity;
     private int treated, seats, rooms, sentBack, timeouts;
     private long startedAt;
+    private long pausedAt;
+    private long pausedTotal;
     private boolean clockRunning;
     private final Label treatedV, seatsV, roomsV, sentV, timeoutsV, clockV;
     private final Timeline clock;
@@ -46,14 +48,32 @@ public class StatsBar extends HBox {
         return v;
     }
 
+    private long effectiveMillis(long now) {
+        long pausedSpan = pausedTotal + (pausedAt != 0 ? now - pausedAt : 0);
+        return now - startedAt - pausedSpan;
+    }
+
     private void tick() {
         if (!clockRunning) return;
-        long s = (System.currentTimeMillis() - startedAt) / 1000;
+        long s = effectiveMillis(System.currentTimeMillis()) / 1000;
         clockV.setText(String.format("%02d:%02d", s / 60, s % 60));
     }
 
+    public void pauseClock() {
+        if (clockRunning && pausedAt == 0) {
+            pausedAt = System.currentTimeMillis();
+        }
+    }
+
+    public void resumeClock() {
+        if (pausedAt != 0) {
+            pausedTotal += System.currentTimeMillis() - pausedAt;
+            pausedAt = 0;
+        }
+    }
+
     public long elapsedSeconds() {
-        return (System.currentTimeMillis() - startedAt) / 1000;
+        return effectiveMillis(System.currentTimeMillis()) / 1000;
     }
 
     public void stopClock() {
