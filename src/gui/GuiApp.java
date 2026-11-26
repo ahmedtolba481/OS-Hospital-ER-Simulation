@@ -21,6 +21,7 @@ public class GuiApp extends Application {
     private FloorPane floorPane;
     private EventLogPane logPane;
     private Button pauseButton;
+    private javafx.scene.control.ToggleButton speedDefault;
 
     @Override
     public void start(Stage stage) {
@@ -101,9 +102,38 @@ public class GuiApp extends Application {
 
     private void stopDriver() {
         PaceGate.setPaused(false);
+        Pace.setSpeed(1.0);
+        if (speedDefault != null) speedDefault.setSelected(true);
         if (pauseButton != null) { pauseButton.setText("Pause"); pauseButton.setDisable(false); }
         if (driver != null) { driver.stop(); driver = null; }
         if (ekgTimeline != null) { ekgTimeline.stop(); ekgTimeline = null; }
+    }
+
+    private HBox buildSpeedSelector() {
+        Label label = new Label("SPEED");
+        label.getStyleClass().add("speed-label");
+        javafx.scene.control.ToggleGroup group = new javafx.scene.control.ToggleGroup();
+        HBox box = new HBox(6);
+        box.setAlignment(Pos.CENTER_LEFT);
+        double[] speeds = {0.5, 1.0, 2.0, 4.0};
+        String[] names = {"0.5x", "1x", "2x", "4x"};
+        for (int i = 0; i < speeds.length; i++) {
+            javafx.scene.control.ToggleButton b = new javafx.scene.control.ToggleButton(names[i]);
+            b.setToggleGroup(group);
+            b.getStyleClass().add("speed-btn");
+            final double v = speeds[i];
+            b.setOnAction(e -> setSpeed(v));
+            if (v == 1.0) { b.setSelected(true); speedDefault = b; }
+            box.getChildren().add(b);
+        }
+        HBox wrap = new HBox(8, label, box);
+        wrap.setAlignment(Pos.CENTER_LEFT);
+        return wrap;
+    }
+
+    private void setSpeed(double value) {
+        Pace.setSpeed(value);
+        if (statsBar != null) statsBar.noteSpeed(value);
     }
 
     private void togglePause() {
@@ -186,10 +216,11 @@ public class GuiApp extends Application {
         pauseButton = new Button("Pause");
         pauseButton.getStyleClass().add("btn-ghost");
         pauseButton.setOnAction(e -> togglePause());
+        HBox speedBox = buildSpeedSelector();
         Button reset = new Button("New Simulation");
         reset.getStyleClass().add("btn-ghost");
         reset.setOnAction(e -> showSetup());
-        HBox bar = new HBox(12, statsBar, spacer, pauseButton, reset);
+        HBox bar = new HBox(12, statsBar, spacer, speedBox, pauseButton, reset);
         bar.setAlignment(Pos.CENTER_LEFT);
         bar.setPadding(new Insets(10, 16, 12, 16));
         bar.getStyleClass().add("bottom-bar");
