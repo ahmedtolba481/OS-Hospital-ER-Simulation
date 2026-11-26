@@ -213,3 +213,15 @@
     -fx-font-size: 13px;
     -fx-text-fill: #7C8DB0;
 }
+
+.paused-badge {
+    -fx-background-color: rgba(11, 18, 32, 0.88);
+    -fx-border-color: #FBBF24;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-text-fill: #FBBF24;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-letter-spacing: 3px;
+    -fx-padding: 8 22;
+}
