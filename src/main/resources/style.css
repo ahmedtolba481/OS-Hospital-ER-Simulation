@@ -225,3 +225,24 @@
     -fx-letter-spacing: 3px;
     -fx-padding: 8 22;
 }
+.speed-label {
+    -fx-font-size: 9px;
+    -fx-text-fill: #7C8DB0;
+    -fx-letter-spacing: 1px;
+    -fx-font-weight: bold;
+}
+.speed-btn {
+    -fx-background-color: transparent;
+    -fx-border-color: #1E2D47;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-text-fill: #7C8DB0;
+    -fx-padding: 5 10;
+    -fx-font-size: 11px;
+    -fx-cursor: hand;
+}
+.speed-btn:selected {
+    -fx-background-color: rgba(34, 211, 238, 0.12);
+    -fx-border-color: #22D3EE;
+    -fx-text-fill: #22D3EE;
+}
