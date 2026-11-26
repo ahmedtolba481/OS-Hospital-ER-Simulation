@@ -74,7 +74,7 @@ public class FloorPane extends StackPane {
         addDoor(44, 556, "ENTRANCE");
         addZone(132, 76, 340, 252, "WAITING ROOM");
         drawSeats();
-        addZone(486, 76, 182, h3doctors(), "DOCTORS");
+        addZone(486, 76, 182, 470, "DOCTORS");
         drawDoctors();
         addZone(682, 76, 246, 300, "TREATMENT ROOMS");
         drawRooms();
@@ -86,7 +86,9 @@ public class FloorPane extends StackPane {
         floor.getChildren().add(arrow);
     }
 
-    private double h3doctors() { return 76 + 40.0 * doctors + 40; }
+    // Cards shrink to fit the fixed DOCTORS zone (inner band y 116..536) for any doctor count.
+    private double cardH() { return Math.min(66, (420.0 - (doctors - 1) * 10) / doctors); }
+    private double cardY(int i) { return 116 + (i - 1) * (cardH() + 10); }
 
     private void addZone(double x, double y, double w, double h, String label) {
         Rectangle r = new Rectangle(x, y, w, h);
@@ -122,10 +124,10 @@ public class FloorPane extends StackPane {
 
     private void drawDoctors() {
         for (int i = 1; i <= doctors; i++) {
-            double y = 116 + (i - 1) * 78;
+            double y = cardY(i);
             StackPane card = new StackPane();
             card.setLayoutX(498); card.setLayoutY(y);
-            card.setPrefSize(156, 66);
+            card.setPrefSize(156, cardH());
             card.getStyleClass().add("doctor-card");
             Circle dot = new Circle(5, Color.web(Theme.GREEN));
             Label name = new Label("DR " + i);
@@ -192,7 +194,7 @@ public class FloorPane extends StackPane {
     }
 
     private double[] doctorTransitPos(int d) {
-        return new double[]{440, 116 + (d - 1) * 78 + 15};
+        return new double[]{440, cardY(d) + cardH() * 0.25};
     }
 
     private double[] roomPos(int room) {
