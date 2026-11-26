@@ -28,6 +28,8 @@ public class GuiApp extends Application {
         showSetup();
         stage.setWidth(1300);
         stage.setHeight(860);
+        stage.setMinWidth(1290);
+        stage.setMinHeight(850);
         stage.show();
         String auto = System.getProperty("autostart");
         if (auto != null) {
