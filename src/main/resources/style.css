@@ -191,7 +191,13 @@
     -fx-border-color: #22D3EE;
 }
 .finished-overlay {
-    -fx-background-color: rgba(11, 18, 32, 0.88);
+    -fx-background-color: #0B1220;
+    -fx-padding: 42 56;
+    -fx-background-radius: 20;
+    -fx-border-color: #1E2A44;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 20;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.6), 36, 0, 0, 10);
 }
 .finished-title {
     -fx-font-size: 30px;
