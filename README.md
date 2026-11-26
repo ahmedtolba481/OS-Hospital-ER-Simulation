@@ -30,10 +30,11 @@ The project runs as a console application and as a JavaFX GUI ("City General ER 
 - src/Doctor.java - doctor thread logic
 - src/Patient.java - patient thread logic
 - src/Output.java - console logging
-- src/gui/ - JavaFX GUI (runs the original classes unchanged and visualizes their events)
+- src/Pace.java - speed multiplier hook used by the GUI speed selector (1x by default, so console runs are unchanged)
+- src/gui/ - JavaFX GUI (runs the original classes and visualizes their events)
 - src/main/resources/style.css - GUI theme
 
-The GUI is built on top of the original seven classes without modifying them: it captures the simulation's log output and turns each event into animation, so the concurrency logic, timing and behavior stay exactly the same in both versions.
+The GUI runs the original simulation classes and captures the simulation's log output, turning each event into animation. The only change to the original code is a speed hook in Doctor.java (Pace.sleep / Pace.scale) for the GUI's speed selector; at the default 1x speed the console and GUI runs keep exactly the same timings and behavior.
 
 ## The GUI
 
@@ -42,6 +43,7 @@ The GUI is built on top of the original seven classes without modifying them: it
 - Patients that hit the 3-second room timeout walk back to the front of the waiting room.
 - Live statistics: treated patients, occupied seats, busy rooms, send-backs, timeouts and elapsed time.
 - Pause/Resume button (or the Space key) freezes the whole run mid-shift and resumes it exactly where it stopped.
+- Speed selector (0.5x, 1x, 2x, 4x) scales treatment times and the room timeout; the default 1x runs exactly the original timings.
 - Color-coded event log mirroring the console output.
 - "All patients treated" summary when the simulation finishes, with a New Simulation reset.
 
