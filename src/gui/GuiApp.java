@@ -20,6 +20,7 @@ public class GuiApp extends Application {
     private StatsBar statsBar;
     private FloorPane floorPane;
     private EventLogPane logPane;
+    private Button pauseButton;
 
     @Override
     public void start(Stage stage) {
@@ -68,6 +69,9 @@ public class GuiApp extends Application {
 
         Scene scene = new Scene(root, 1300, 860);
         attachCss(scene);
+        scene.setOnKeyPressed(e -> {
+            if (e.getCode() == javafx.scene.input.KeyCode.SPACE) togglePause();
+        });
         stage.setScene(scene);
 
         driver = new SimDriver(capacity, doctors, patients, new SimDriver.Listener() {
@@ -83,6 +87,11 @@ public class GuiApp extends Application {
             public void onFinished() {
                 Platform.runLater(() -> {
                     statsBar.stopClock();
+                    if (pauseButton != null) {
+                        PaceGate.setPaused(false);
+                        pauseButton.setText("Pause");
+                        pauseButton.setDisable(true);
+                    }
                     floorPane.showFinished(statsBar.treatedCount(), patients, statsBar.elapsedSeconds());
                 });
             }
@@ -91,8 +100,30 @@ public class GuiApp extends Application {
     }
 
     private void stopDriver() {
+        PaceGate.setPaused(false);
+        if (pauseButton != null) { pauseButton.setText("Pause"); pauseButton.setDisable(false); }
         if (driver != null) { driver.stop(); driver = null; }
         if (ekgTimeline != null) { ekgTimeline.stop(); ekgTimeline = null; }
+    }
+
+    private void togglePause() {
+        if (driver == null || pauseButton == null || pauseButton.isDisabled()) return;
+        boolean nowPaused = !PaceGate.isPaused();
+        PaceGate.setPaused(nowPaused);
+        pauseButton.setText(nowPaused ? "Resume" : "Pause");
+        if (nowPaused) {
+            statsBar.pauseClock();
+        } else {
+            statsBar.resumeClock();
+        }
+        floorPane.setPausedVisual(nowPaused);
+        if (ekgTimeline != null) {
+            if (nowPaused) {
+                ekgTimeline.pause();
+            } else {
+                ekgTimeline.play();
+            }
+        }
     }
 
     private HBox buildHeader() {
@@ -152,10 +183,13 @@ public class GuiApp extends Application {
     private HBox buildBottomBar() {
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
+        pauseButton = new Button("Pause");
+        pauseButton.getStyleClass().add("btn-ghost");
+        pauseButton.setOnAction(e -> togglePause());
         Button reset = new Button("New Simulation");
         reset.getStyleClass().add("btn-ghost");
         reset.setOnAction(e -> showSetup());
-        HBox bar = new HBox(12, statsBar, spacer, reset);
+        HBox bar = new HBox(12, statsBar, spacer, pauseButton, reset);
         bar.setAlignment(Pos.CENTER_LEFT);
         bar.setPadding(new Insets(10, 16, 12, 16));
         bar.getStyleClass().add("bottom-bar");
