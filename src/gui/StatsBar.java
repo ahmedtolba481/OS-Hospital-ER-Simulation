@@ -11,8 +11,10 @@ public class StatsBar extends HBox {
     private final int capacity;
     private int treated, seats, rooms, sentBack, timeouts;
     private long startedAt;
+    private long mark;
+    private double base;
+    private double speed = 1.0;
     private long pausedAt;
-    private long pausedTotal;
     private boolean clockRunning;
     private final Label treatedV, seatsV, roomsV, sentV, timeoutsV, clockV;
     private final Timeline clock;
@@ -30,6 +32,7 @@ public class StatsBar extends HBox {
         timeoutsV = cell("TIMEOUTS", "0");
         clockV = cell("ELAPSED", "00:00");
         startedAt = System.currentTimeMillis();
+        mark = startedAt;
         clockRunning = true;
         clock = new Timeline(new KeyFrame(Duration.seconds(1), e -> tick()));
         clock.setCycleCount(Timeline.INDEFINITE);
@@ -48,32 +51,49 @@ public class StatsBar extends HBox {
         return v;
     }
 
-    private long effectiveMillis(long now) {
-        long pausedSpan = pausedTotal + (pausedAt != 0 ? now - pausedAt : 0);
-        return now - startedAt - pausedSpan;
+    // Elapsed simulated time: wall time scaled by the speed in effect,
+    // with paused spans excluded.
+    private double scaledNow() {
+        long now = pausedAt != 0 ? pausedAt : System.currentTimeMillis();
+        return base + (now - mark) * speed;
     }
 
     private void tick() {
         if (!clockRunning) return;
-        long s = effectiveMillis(System.currentTimeMillis()) / 1000;
+        long s = (long) (scaledNow() / 1000);
         clockV.setText(String.format("%02d:%02d", s / 60, s % 60));
+    }
+
+    public void noteSpeed(double newSpeed) {
+        if (pausedAt != 0) {
+            // Speed change while paused takes effect on resume.
+            speed = newSpeed;
+            return;
+        }
+        long now = System.currentTimeMillis();
+        base += (now - mark) * speed;
+        mark = now;
+        speed = newSpeed;
     }
 
     public void pauseClock() {
         if (clockRunning && pausedAt == 0) {
-            pausedAt = System.currentTimeMillis();
+            long now = System.currentTimeMillis();
+            base += (now - mark) * speed;
+            mark = now;
+            pausedAt = now;
         }
     }
 
     public void resumeClock() {
         if (pausedAt != 0) {
-            pausedTotal += System.currentTimeMillis() - pausedAt;
             pausedAt = 0;
+            mark = System.currentTimeMillis();
         }
     }
 
     public long elapsedSeconds() {
-        return effectiveMillis(System.currentTimeMillis()) / 1000;
+        return (long) (scaledNow() / 1000);
     }
 
     public void stopClock() {
