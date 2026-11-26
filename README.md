@@ -41,6 +41,7 @@ The GUI is built on top of the original seven classes without modifying them: it
 - Animated ER floor: entrance and outside queue, waiting room seats, doctor status cards and the two treatment rooms with a live pulse while treating.
 - Patients that hit the 3-second room timeout walk back to the front of the waiting room.
 - Live statistics: treated patients, occupied seats, busy rooms, send-backs, timeouts and elapsed time.
+- Pause/Resume button (or the Space key) freezes the whole run mid-shift and resumes it exactly where it stopped.
 - Color-coded event log mirroring the console output.
 - "All patients treated" summary when the simulation finishes, with a New Simulation reset.
 
