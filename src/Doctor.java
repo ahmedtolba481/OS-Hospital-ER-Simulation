@@ -23,7 +23,7 @@ public class Doctor extends Thread {
                 }
                 Output.log("Doctor " + doctorId + " is assigned to P" + patient.getPatientId());
                 Output.log("Doctor " + doctorId + " is trying to acquire a treatment room.");
-                boolean acquired = treatmentRoomManager.acquireRoom(3000);
+                boolean acquired = treatmentRoomManager.acquireRoom((int) Pace.scale(3000));
                 if (!acquired) {
                     Output.log("Doctor " + doctorId + " could not acquire a treatment room.");
                     waitingRoom.returnPatient(patient,doctorId);
@@ -39,7 +39,7 @@ public class Doctor extends Thread {
         try {
             Output.log("Doctor " + doctorId + " acquired a treatment room.");
             Output.log("Doctor " + doctorId + " begins treating P" + patient.getPatientId() );
-            Thread.sleep(random.nextInt(2000) + 2000);
+            Pace.sleep(random.nextInt(2000) + 2000);
             Output.log("Doctor " + doctorId + " finished treating P" + patient.getPatientId() );
         } finally {
             treatmentRoomManager.releaseRoom();
