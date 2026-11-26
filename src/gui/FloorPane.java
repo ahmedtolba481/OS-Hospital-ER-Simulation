@@ -11,6 +11,7 @@ import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.ScaleTransition;
 import javafx.animation.Timeline;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -35,6 +36,7 @@ public class FloorPane extends StackPane {
     private final Pane tokenLayer = new Pane();
     private final VBox finishedOverlay;
     private final Label finishedStats = new Label();
+    private final Label pausedBadge = new Label("PAUSED");
 
     private final Map<Integer, StackPane> tokens = new HashMap<>();
     private final Map<Integer, Deque<double[]>> moveQueues = new HashMap<>();
@@ -65,8 +67,27 @@ public class FloorPane extends StackPane {
         StackPane board = new StackPane(floor, tokenLayer);
         board.setMaxSize(W, H);
         finishedOverlay = buildFinishedOverlay();
-        getChildren().addAll(board, finishedOverlay);
+        pausedBadge.getStyleClass().add("paused-badge");
+        pausedBadge.setVisible(false);
+        pausedBadge.setMouseTransparent(true);
+        StackPane.setAlignment(pausedBadge, Pos.TOP_CENTER);
+        StackPane.setMargin(pausedBadge, new Insets(18, 0, 0, 0));
+        getChildren().addAll(board, pausedBadge, finishedOverlay);
         getStyleClass().add("floor-wrap");
+    }
+
+    // Freeze or resume the purely visual loops while the run is paused.
+    public void setPausedVisual(boolean value) {
+        pausedBadge.setVisible(value);
+        for (ScaleTransition st : roomPulse) {
+            if (st != null) {
+                if (value) {
+                    st.pause();
+                } else {
+                    st.play();
+                }
+            }
+        }
     }
 
     private void buildZones() {
